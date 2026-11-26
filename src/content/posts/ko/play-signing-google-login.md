@@ -21,7 +21,7 @@ Account reauth failed
 
 Android 앱은 서명 인증서로 “누가 만든 앱인가”를 증명합니다. Firebase의 Google 로그인은 등록된 **SHA-1 인증서 지문**과 앱의 서명이 일치할 때만 동작합니다.
 
-그런데 Play 스토어는 **Play 앱 서명(App Signing)**을 사용합니다.
+그런데 Play 스토어는 **Play 앱 서명**(App Signing)을 사용합니다.
 
 1. 개발자는 **업로드 키**로 서명한 AAB를 올립니다.
 2. Google이 업로드 키를 확인한 뒤, 사용자에게 줄 APK를 **Google이 보관하는 앱 서명 키**로 다시 서명합니다.
