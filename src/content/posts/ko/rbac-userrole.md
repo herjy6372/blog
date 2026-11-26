@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: mytodo
 order: 1
-draft: true
+draft: false
 ---
 
 ## 문제 상황

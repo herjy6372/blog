@@ -5,7 +5,7 @@ date: 2026-11-26
 category: flutter
 project: random-travel
 order: 6
-draft: true
+draft: false
 ---
 
 ## 왜 지도 SDK를 쓰지 않았나

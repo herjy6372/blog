@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: my-recipe
 order: 8
-draft: true
+draft: false
 ---
 
 ## Why audit my own app
