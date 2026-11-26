@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: church-website
 order: 5
-draft: true
+draft: false
 ---
 
 ## 왜 정적 사이트에 회원제가 필요했나

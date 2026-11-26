@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: my-recipe
 order: 8
-draft: true
+draft: false
 ---
 
 ## 왜 스스로 점검했나

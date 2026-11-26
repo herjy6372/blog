@@ -5,7 +5,7 @@ date: 2026-11-26
 category: native
 project: routiny
 order: 10
-draft: true
+draft: false
 ---
 
 ## 문제 상황

@@ -5,7 +5,7 @@ date: 2026-11-26
 category: flutter
 project: my-recipe
 order: 7
-draft: true
+draft: false
 ---
 
 ## 문제 상황

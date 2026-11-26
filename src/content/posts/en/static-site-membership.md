@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: church-website
 order: 5
-draft: true
+draft: false
 ---
 
 ## Why a static site needed membership

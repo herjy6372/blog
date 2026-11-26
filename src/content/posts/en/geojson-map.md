@@ -5,7 +5,7 @@ date: 2026-11-26
 category: flutter
 project: random-travel
 order: 6
-draft: true
+draft: false
 ---
 
 ## Why no map SDK

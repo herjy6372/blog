@@ -5,7 +5,7 @@ date: 2026-11-26
 category: deploy
 project: bible-praise
 order: 4
-draft: true
+draft: false
 ---
 
 ## 문제 상황

@@ -5,7 +5,7 @@ date: 2026-11-26
 category: security
 project: card-flip
 order: 9
-draft: true
+draft: false
 ---
 
 ## 배경
