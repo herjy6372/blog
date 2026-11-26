@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, href, asset, langPaths, type Lang } from '../../i18n';
+import { SITE } from '../../config';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const ko = lang === 'ko';
+
+const skills = [
+  { g: ko ? '앱 개발' : 'App development', items: ['Flutter', 'Dart', 'Kotlin', 'Swift', 'Riverpod', 'Provider'] },
+  { g: ko ? '백엔드 · 웹' : 'Backend · Web', items: ['Firebase Auth', 'Firestore', 'HTML/CSS/JS', 'GitHub Pages', 'GitHub Actions'] },
+  { g: ko ? '도구' : 'Tools', items: ['Git', 'Android Studio', 'Xcode', 'VS Code', 'Claude · Gemini · Codex'] },
+];
+
+const timeline = ko
+  ? [
+      { when: '2026.09', what: '경북게임개발사관학교 기초역량함양과정 ‘AI 바이브코딩 기반 웹 미니게임 개발’ 수료' },
+      { when: '2026.04 ~', what: 'Flutter 1인 개발 시작 — 나의 할 일, 성경&찬양, 한국 랜덤여행, 나의 레시피, 루티니' },
+      { when: '2022.01 ~ 2025.12', what: '(주)삼산통신 — 통신·네트워크 전송망 설계, 방송·인터넷 장비 설치 및 AS' },
+      { when: '', what: '경운대학교 모바일공학과 졸업' },
+    ]
+  : [
+      { when: '2026.09', what: 'Completed “Web Mini-Game Development with AI Vibe Coding”, Gyeongbuk Game Development Academy' },
+      { when: '2026.04 –', what: 'Started solo Flutter development: My To-Do, Bible & Hymns, Korea Random Trip, My Recipe, Routiny' },
+      { when: '2022.01 – 2025.12', what: 'Samsan Telecom — network transport design, broadcast and internet equipment installation and support' },
+      { when: '', what: 'B.S. in Mobile Engineering, Kyungwoon University' },
+    ];
+
+const certs = ko
+  ? ['AI-POT(AI프롬프트활용능력) 1급', '정보통신기술자 경력수첩(초급)', '초경량비행장치 무인멀티콥터 2종', 'CAD실무능력 2급', 'ICDL', 'ITQ 아래한글 A등급']
+  : ['AI-POT (AI prompt skills) Level 1', 'ICT Engineer career record (junior)', 'Drone pilot certificate (multicopter, class 2)', 'CAD practical skills Level 2', 'ICDL', 'ITQ Hangul word processing, grade A'];
+---
+<Base lang={lang} title={ui.about.title} path="about/" nav="about" image="images/about/photo.jpg">
+  <section class="about-hero">
+    <img src={asset('images/about/photo.jpg')} alt={ui.about.photoAlt} width="260" height="260" />
+    <div>
+      <span class="eyebrow">{ui.about.role}</span>
+      <h1>{ui.author}</h1>
+      <p>{ui.about.intro}</p>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-skills">
+    <div class="section-head"><h2 id="h-skills">{ui.about.skills}</h2></div>
+    <div class="grid-sm">
+      {skills.map((s) => (
+        <div class="skill-group">
+          <h3>{s.g}</h3>
+          <div class="tags">{s.items.map((i) => <span>{i}</span>)}</div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-timeline">
+    <div class="section-head"><h2 id="h-timeline">{ui.about.timeline}</h2></div>
+    <ol class="timeline">
+      {timeline.map((i) => <li><span class="when">{i.when}</span><span>{i.what}</span></li>)}
+    </ol>
+  </section>
+
+  <section class="section" aria-labelledby="h-certs">
+    <div class="section-head"><h2 id="h-certs">{ui.about.certs}</h2></div>
+    <div class="tags">{certs.map((c) => <span class="chip chip-outline">{c}</span>)}</div>
+  </section>
+
+  <section class="section" aria-labelledby="h-contact">
+    <div class="section-head"><h2 id="h-contact">{ui.about.contact}</h2></div>
+    <div class="btn-row">
+      <a class="btn btn-primary" href={SITE.github} rel="noopener noreferrer">GitHub</a>
+      <a class="btn" href={SITE.portfolio} rel="noopener noreferrer">{ui.about.portfolio}</a>
+      <a class="btn" href={href(lang, 'projects/')}>{ui.nav.projects}</a>
+    </div>
+  </section>
+</Base>

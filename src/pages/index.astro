@@ -1,0 +1,20 @@
+---
+import { base, asset } from '../i18n';
+---
+<!doctype html>
+<html lang="ko" data-base={base}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'" />
+    <title>허진영 개발 블로그 · Heo Jinyoung Dev Blog</title>
+    <meta http-equiv="refresh" content={`2; url=${base}ko/`} />
+    <link rel="alternate" hreflang="ko" href={`${base}ko/`} />
+    <link rel="alternate" hreflang="en" href={`${base}en/`} />
+    <link rel="icon" type="image/png" href={asset('favicon.png')} />
+    <script is:inline src={asset('js/lang-redirect.js')}></script>
+  </head>
+  <body>
+    <p><a href={`${base}ko/`}>한국어</a> · <a href={`${base}en/`}>English</a></p>
+  </body>
+</html>

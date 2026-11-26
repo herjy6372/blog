@@ -1,0 +1,110 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { t, href, asset, LANGS, type Lang } from '../../../i18n';
+import { PROJECTS, type Project } from '../../../data/projects';
+import { getPosts, postSlug } from '../../../lib/posts';
+
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) => PROJECTS.map((project) => ({ params: { lang, slug: project.slug }, props: { project } })));
+}
+
+const lang = Astro.params.lang as Lang;
+const { project: p } = Astro.props as { project: Project };
+const ui = t(lang);
+const x = p[lang];
+const idx = PROJECTS.findIndex((q) => q.slug === p.slug);
+const prev = PROJECTS[(idx + PROJECTS.length - 1) % PROJECTS.length];
+const next = PROJECTS[(idx + 1) % PROJECTS.length];
+const related = (await getPosts(lang)).filter((post) => post.data.project === p.slug);
+---
+<Base lang={lang} title={x.name} description={x.summary} path={`projects/${p.slug}/`} nav="projects" image={p.cover.src}>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href={href(lang, 'projects/')}>{ui.projects.title}</a><span aria-hidden="true">/</span><span aria-current="page">{x.name}</span>
+  </nav>
+
+  <section class="project-hero">
+    <div>
+      <span class="eyebrow">{x.kind}</span>
+      <h1>{x.name}</h1>
+      <p class="lead">{x.desc}</p>
+      <dl class="facts">
+        <dt>{ui.projects.period}</dt><dd>{x.period}</dd>
+        <dt>{ui.projects.platform}</dt><dd>{x.platform}</dd>
+        {p.version && <><dt>{ui.projects.version}</dt><dd>{p.version}</dd></>}
+        <dt>{ui.projects.status}</dt><dd>{x.status}</dd>
+      </dl>
+      <div class="btn-row">
+        {p.live && <a class="btn btn-primary" href={p.live.url} rel="noopener noreferrer">{p.live[lang]}</a>}
+        {p.code ? (
+          <a class:list={['btn', { 'btn-primary': !p.live }]} href={p.code} rel="noopener noreferrer">{ui.projects.code}</a>
+        ) : (
+          <span class="chip chip-outline">{ui.projects.codePrivate}</span>
+        )}
+      </div>
+    </div>
+    <div class:list={['cover', { phone: !p.cover.wide }]}>
+      <img src={asset(p.cover.src)} alt={p.shots.find((s) => s.src === p.cover.src)?.[lang] ?? x.name} />
+    </div>
+  </section>
+
+  {p.shots.length > 1 && (
+    <section class="section" aria-labelledby="h-shots">
+      <div class="section-head"><h2 id="h-shots">{ui.projects.screens}</h2></div>
+      <div class="shots" tabindex="0" role="region" aria-labelledby="h-shots">
+        {p.shots.map((s) => (
+          <figure class:list={{ wide: s.wide }}>
+            <a href={asset(s.src)}><img src={asset(s.src)} alt={s[lang]} loading="lazy" decoding="async" /></a>
+            <figcaption>{s[lang]}</figcaption>
+          </figure>
+        ))}
+      </div>
+    </section>
+  )}
+
+  <section class="section" aria-labelledby="h-features">
+    <div class="section-head"><h2 id="h-features">{ui.projects.features}</h2></div>
+    <ul class="feature-list">{x.features.map((f) => <li>{f}</li>)}</ul>
+  </section>
+
+  <section class="section" aria-labelledby="h-stack">
+    <div class="section-head"><h2 id="h-stack">{ui.projects.stack}</h2></div>
+    <div class="tags">{p.tags.map((tag) => <span class="tag">{tag}</span>)}</div>
+    {p.arch && (
+      <>
+        <h3 class="arch-title">{ui.projects.arch}</h3>
+        <pre class="arch"><code>{p.arch}</code></pre>
+      </>
+    )}
+  </section>
+
+  <section class="section" aria-labelledby="h-trouble">
+    <div class="section-head"><h2 id="h-trouble">{ui.projects.trouble}</h2></div>
+    <div class="trouble">
+      {x.troubles.map((tr) => (
+        <div class="trouble-item">
+          <div><strong>{ui.projects.problem}</strong><p>{tr.problem}</p></div>
+          <div><strong>{ui.projects.solution}</strong><p>{tr.solution}</p></div>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-related">
+    <div class="section-head"><h2 id="h-related">{ui.projects.related}</h2></div>
+    {related.length ? (
+      <ul class="post-list">
+        {related.map((post) => (
+          <li><a href={href(lang, `posts/${postSlug(post)}/`)}>
+            <span class="chip">{ui.categories[post.data.category]}</span>
+            <span class="pl-title">{post.data.title}</span>
+          </a></li>
+        ))}
+      </ul>
+    ) : <p class="muted">{ui.projects.noRelated}</p>}
+  </section>
+
+  <nav class="pager" aria-label={lang === 'ko' ? '다른 프로젝트' : 'Other projects'}>
+    <a href={href(lang, `projects/${prev.slug}/`)}><span>← {ui.projects.prev}</span>{prev[lang].name}</a>
+    <a class="next" href={href(lang, `projects/${next.slug}/`)}><span>{ui.projects.next} →</span>{next[lang].name}</a>
+  </nav>
+</Base>

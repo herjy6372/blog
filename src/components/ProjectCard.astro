@@ -1,0 +1,37 @@
+---
+import { t, href, asset, type Lang } from '../i18n';
+import type { Project } from '../data/projects';
+
+interface Props { project: Project; lang: Lang; compact?: boolean; headingLevel?: 'h2' | 'h3' }
+const { project: p, lang, compact = false, headingLevel = 'h3' } = Astro.props;
+const ui = t(lang);
+const x = p[lang];
+const H = headingLevel;
+const text = [x.name, x.summary, x.kind, ...p.tags].join(' ');
+---
+<article class="card has-stretched" data-item data-type={p.type} data-text={text}>
+  <div class:list={['thumb', { wide: p.cover.wide }]}>
+    <img src={asset(p.cover.src)} alt="" loading="lazy" decoding="async" />
+  </div>
+  <div class="card-body">
+    <div class="card-meta">
+      <span>{x.kind}{p.version && ` · v${p.version}`}</span>
+      {!compact && <span class="chip chip-outline">{x.status}</span>}
+    </div>
+    <H class="card-title"><a class="stretched" href={href(lang, `projects/${p.slug}/`)}>{x.name}</a></H>
+    <p class="card-text">{compact ? x.summary : x.desc.split('. ')[0].replace(/\.?$/, '.')}</p>
+    {!compact && (
+      <>
+        <div class="tags">{p.tags.slice(0, 5).map((tag) => <span class="tag">{tag}</span>)}</div>
+        <div class="card-actions">
+          {p.code ? (
+            <a class="btn" href={p.code} rel="noopener noreferrer">{ui.projects.code}</a>
+          ) : (
+            <span class="chip chip-outline">{ui.projects.codePrivate}</span>
+          )}
+          {p.live && <a class="btn" href={p.live.url} rel="noopener noreferrer">{p.live[lang]}</a>}
+        </div>
+      </>
+    )}
+  </div>
+</article>

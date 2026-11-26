@@ -1,0 +1,25 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ProjectCard from '../../../components/ProjectCard.astro';
+import { t, langPaths, type Lang } from '../../../i18n';
+import { PROJECTS } from '../../../data/projects';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const filters = [['all', ui.projects.all], ['app', ui.projects.app], ['web', ui.projects.web]] as const;
+---
+<Base lang={lang} title={ui.projects.title} description={ui.projects.sub} path="projects/" nav="projects">
+  <div class="page-head">
+    <h1>{ui.projects.title}</h1>
+    <p>{ui.projects.sub}</p>
+  </div>
+  <div data-filterable>
+    <div class="filter" role="group" aria-label={ui.projects.title}>
+      {filters.map(([k, label]) => <button type="button" data-filter={k} aria-pressed={k === 'all' ? 'true' : 'false'}>{label}</button>)}
+    </div>
+    <div class="grid">
+      {PROJECTS.map((p) => <ProjectCard project={p} lang={lang} headingLevel="h2" />)}
+    </div>
+  </div>
+</Base>

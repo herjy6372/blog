@@ -1,0 +1,97 @@
+---
+import { render } from 'astro:content';
+import Base from '../../../layouts/Base.astro';
+import { t, href, asset, formatDate, LANGS, type Lang } from '../../../i18n';
+import { getProject } from '../../../data/projects';
+import { getPosts, postSlug, readingMinutes, type Post } from '../../../lib/posts';
+import { SITE, giscusEnabled } from '../../../config';
+
+export async function getStaticPaths() {
+  const out = [];
+  for (const lang of LANGS) {
+    const posts = await getPosts(lang);
+    for (const post of posts) out.push({ params: { lang, slug: postSlug(post) }, props: { post } });
+  }
+  return out;
+}
+
+const lang = Astro.params.lang as Lang;
+const { post } = Astro.props as { post: Post };
+const ui = t(lang);
+const d = post.data;
+const { Content, headings } = await render(post);
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+const project = getProject(d.project);
+
+// 같은 프로젝트(시리즈) 안에서 이전/다음 글. order가 작은 쪽이 먼저 쓴 글
+const series = (await getPosts(lang)).filter((p) => p.data.project === d.project).sort((a, b) => a.data.order - b.data.order);
+const i = series.findIndex((p) => p.id === post.id);
+const prev = series[i - 1];
+const next = series[i + 1];
+const g = SITE.giscus;
+---
+<Base lang={lang} title={d.title} description={d.description} path={`posts/${postSlug(post)}/`} nav="posts" type="article" image={project?.cover.src}>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href={href(lang, 'posts/')}>{ui.posts.title}</a><span aria-hidden="true">/</span>
+    <a href={href(lang, `posts/?cat=${d.category}`)}>{ui.categories[d.category]}</a>
+  </nav>
+  <div class="post-layout">
+    <article>
+      <header class="post-header">
+        <div class="tags">
+          <span class="chip">{ui.categories[d.category]}</span>
+          {project && <span class="chip chip-outline"># {project[lang].name}</span>}
+          {d.draft && <span class="chip chip-draft">{ui.posts.draft}</span>}
+        </div>
+        <h1>{d.title}</h1>
+        <div class="meta">
+          <span>{ui.author}</span>
+          <time datetime={d.date.toISOString()}>{formatDate(lang, d.date)}</time>
+          <span>{readingMinutes(post, lang)} {ui.posts.minRead}</span>
+        </div>
+        {d.draft && <p class="draft-note" role="note">{ui.posts.draftNote}</p>}
+      </header>
+      <div class="prose">
+        <Content />
+      </div>
+
+      {project && (
+        <a class="post-project" href={href(lang, `projects/${project.slug}/`)}>
+          <img src={asset(project.cover.src)} alt="" loading="lazy" />
+          <div><span>{ui.posts.project}</span><strong>{project[lang].name}</strong> — {project[lang].summary}</div>
+        </a>
+      )}
+
+      {(prev || next) && (
+        <nav class="pager" aria-label={lang === 'ko' ? '같은 시리즈의 글' : 'More in this series'}>
+          {prev ? <a href={href(lang, `posts/${postSlug(prev)}/`)}><span>← {ui.posts.prev}</span>{prev.data.title}</a> : <span></span>}
+          {next && <a class="next" href={href(lang, `posts/${postSlug(next)}/`)}><span>{ui.posts.next} →</span>{next.data.title}</a>}
+        </nav>
+      )}
+
+      {giscusEnabled && (
+        <section class="section" aria-labelledby="h-comments">
+          <h2 id="h-comments">{ui.posts.comments}</h2>
+          <script is:inline src="https://giscus.app/client.js"
+            data-repo={g.repo} data-repo-id={g.repoId} data-category={g.category} data-category-id={g.categoryId}
+            data-mapping="pathname" data-strict="1" data-reactions-enabled="1" data-emit-metadata="0"
+            data-input-position="top" data-theme="preferred_color_scheme" data-lang={lang} data-loading="lazy"
+            crossorigin="anonymous" async></script>
+        </section>
+      )}
+
+      <p class="back-link"><a href={href(lang, 'posts/')}>← {ui.posts.backToList}</a></p>
+    </article>
+
+    {toc.length > 0 && (
+      <aside class="toc">
+        <details open>
+          <summary>{ui.posts.toc}</summary>
+          <ol>
+            {toc.map((h) => <li class={`d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>)}
+          </ol>
+        </details>
+      </aside>
+    )}
+  </div>
+</Base>

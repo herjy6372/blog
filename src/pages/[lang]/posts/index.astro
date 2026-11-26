@@ -1,0 +1,34 @@
+---
+import Base from '../../../layouts/Base.astro';
+import PostCard from '../../../components/PostCard.astro';
+import { t, langPaths, CATEGORIES, type Lang } from '../../../i18n';
+import { getPosts } from '../../../lib/posts';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const posts = await getPosts(lang);
+const used = CATEGORIES.filter((c) => posts.some((p) => p.data.category === c));
+---
+<Base lang={lang} title={ui.posts.title} description={ui.posts.sub} path="posts/" nav="posts">
+  <div class="page-head">
+    <h1>{ui.posts.title}</h1>
+    <p>{ui.posts.sub}</p>
+  </div>
+  <div data-filterable>
+    <div class="posts-tools">
+      <div class="filter" role="group" aria-label={ui.posts.title}>
+        <button type="button" data-filter="all" aria-pressed="true">{ui.posts.all}</button>
+        {used.map((c) => <button type="button" data-filter={c} aria-pressed="false">{ui.categories[c]}</button>)}
+      </div>
+      <div class="search">
+        <label class="visually-hidden" for="post-search">{ui.posts.search}</label>
+        <input id="post-search" type="search" data-search placeholder={ui.posts.searchPlaceholder} autocomplete="off" />
+      </div>
+    </div>
+    <div class="grid">
+      {posts.map((p) => <PostCard post={p} lang={lang} />)}
+    </div>
+    <p class="empty" data-empty hidden>{ui.posts.empty}</p>
+  </div>
+</Base>

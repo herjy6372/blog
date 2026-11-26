@@ -1,0 +1,113 @@
+---
+import '../styles/global.css';
+import { t, href, asset, otherLang, type Lang } from '../i18n';
+import { SITE, giscusEnabled } from '../config';
+
+interface Props {
+  lang: Lang;
+  title?: string;
+  description?: string;
+  /** 언어 접두어 뒤의 경로 (예: 'projects/mytodo/'). 언어 전환과 hreflang에 사용 */
+  path: string;
+  nav?: 'home' | 'projects' | 'posts' | 'about' | 'changelog';
+  image?: string;
+  type?: 'website' | 'article';
+}
+
+const { lang, title, description, path, nav, image = 'images/mytodo/feature.png', type = 'website' } = Astro.props;
+const ui = t(lang);
+const other = otherLang(lang);
+const fullTitle = title ? `${title} | ${ui.siteName}` : ui.siteName;
+const desc = description ?? ui.siteDescription;
+const canonical = new URL(href(lang, path), Astro.site);
+const altUrl = new URL(href(other, path), Astro.site);
+const ogImage = new URL(asset(image), Astro.site);
+
+// GitHub Pages는 응답 헤더를 설정할 수 없어 meta로 CSP를 적용합니다. (개발 서버는 인라인 스크립트를 쓰므로 빌드에서만)
+const giscusSrc = giscusEnabled ? ' https://giscus.app' : '';
+const csp = [
+  "default-src 'self'",
+  `script-src 'self'${giscusSrc}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self'",
+  "connect-src 'self'",
+  `frame-src ${giscusEnabled ? 'https://giscus.app' : "'none'"}`,
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  'upgrade-insecure-requests',
+].join('; ');
+
+const navItems = [
+  ['home', ''],
+  ['projects', 'projects/'],
+  ['posts', 'posts/'],
+  ['about', 'about/'],
+  ['changelog', 'changelog/'],
+] as const;
+---
+<!doctype html>
+<html lang={ui.htmlLang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {import.meta.env.PROD && <meta http-equiv="Content-Security-Policy" content={csp} />}
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={desc} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang={lang} href={canonical} />
+    <link rel="alternate" hreflang={other} href={altUrl} />
+    <link rel="alternate" type="application/rss+xml" title={ui.siteName} href={href(lang, 'rss.xml')} />
+    <link rel="icon" type="image/png" href={asset('favicon.png')} />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={lang === 'ko' ? 'ko_KR' : 'en_US'} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline src={asset('js/theme-init.js')}></script>
+    <script is:inline src={asset('js/site.js')} defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">{ui.skip}</a>
+    <header class="site-header">
+      <div class="container">
+        <a class="brand" href={href(lang)}>
+          <img src={asset('favicon.png')} alt="" width="30" height="30" />
+          <span>{ui.siteName}</span>
+        </a>
+        <nav class="nav" aria-label={lang === 'ko' ? '주 메뉴' : 'Main'}>
+          {navItems.map(([key, p]) => (
+            <a href={href(lang, p)} aria-current={nav === key ? 'page' : undefined}>{ui.nav[key]}</a>
+          ))}
+        </nav>
+        <div class="header-tools">
+          <a class="lang-btn" href={href(other, path)} hreflang={other} lang={other} aria-label={ui.langSwitch} data-lang-switch={other}>{ui.otherLangLabel}</a>
+          <button class="icon-btn" type="button" data-theme-toggle aria-label={ui.themeToggle} title={ui.themeToggle}>
+            <svg class="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+            <svg class="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+    <footer class="site-footer">
+      <div class="container">
+        <span>© 2026 {ui.author} · {ui.footer.note}</span>
+        <nav aria-label="Footer">
+          <a href={SITE.github} rel="noopener noreferrer">GitHub</a>
+          <a href={SITE.portfolio} rel="noopener noreferrer">{ui.about.portfolio}</a>
+          <a href={href(lang, 'rss.xml')}>{ui.footer.rss}</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
+</html>

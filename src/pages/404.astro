@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, href } from '../i18n';
+const ui = t('ko');
+const en = t('en');
+---
+<Base lang="ko" title={ui.notFound.title} path="">
+  <div class="page-head">
+    <h1>{ui.notFound.title}</h1>
+    <p>{ui.notFound.body} <span lang="en">{en.notFound.body}</span></p>
+  </div>
+  <div class="btn-row">
+    <a class="btn btn-primary" href={href('ko')}>{ui.notFound.home}</a>
+    <a class="btn" href={href('en')} lang="en">{en.notFound.home}</a>
+  </div>
+</Base>

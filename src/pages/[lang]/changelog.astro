@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, href, formatDate, langPaths, type Lang } from '../../i18n';
+import { CHANGELOG } from '../../data/changelog';
+import { projectName } from '../../data/projects';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+---
+<Base lang={lang} title={ui.changelog.title} description={ui.changelog.sub} path="changelog/" nav="changelog">
+  <div class="page-head">
+    <h1>{ui.changelog.title}</h1>
+    <p>{ui.changelog.sub}</p>
+  </div>
+  <ol class="log" reversed>
+    {CHANGELOG.map((e) => (
+      <li class="log-item">
+        <div>
+          <div class="ver">v{e.version}</div>
+          <div class="app"><a href={href(lang, `projects/${e.project}/`)}>{projectName(e.project, lang)}</a></div>
+          {e.date && <time class="when" datetime={e.date}>{formatDate(lang, new Date(`${e.date}T00:00:00+09:00`))}</time>}
+        </div>
+        <ul>{e[lang].map((i) => <li>{i}</li>)}</ul>
+      </li>
+    ))}
+  </ol>
+</Base>

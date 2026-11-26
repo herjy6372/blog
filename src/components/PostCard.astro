@@ -1,0 +1,27 @@
+---
+import { t, href, formatDate, type Lang } from '../i18n';
+import { projectName } from '../data/projects';
+import { postSlug, readingMinutes, type Post } from '../lib/posts';
+
+interface Props { post: Post; lang: Lang }
+const { post, lang } = Astro.props;
+const ui = t(lang);
+const d = post.data;
+const proj = projectName(d.project, lang);
+const text = [d.title, d.description, proj, ui.categories[d.category]].join(' ');
+---
+<article class="card post-card has-stretched" data-item data-type={d.category} data-text={text}>
+  <div class="card-body">
+    <div class="tags">
+      <span class="chip">{ui.categories[d.category]}</span>
+      <span class="chip chip-outline"># {proj}</span>
+      {d.draft && <span class="chip chip-draft">{ui.posts.draft}</span>}
+    </div>
+    <h2><a class="stretched" href={href(lang, `posts/${postSlug(post)}/`)}>{d.title}</a></h2>
+    <p class="card-text">{d.description}</p>
+    <div class="card-meta">
+      <time datetime={d.date.toISOString()}>{formatDate(lang, d.date)}</time>
+      <span>{readingMinutes(post, lang)} {ui.posts.minRead}</span>
+    </div>
+  </div>
+</article>

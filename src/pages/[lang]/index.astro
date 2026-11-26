@@ -1,0 +1,64 @@
+---
+import Base from '../../layouts/Base.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { t, href, asset, formatDate, langPaths, type Lang } from '../../i18n';
+import { PROJECTS, projectName } from '../../data/projects';
+import { getPosts, postSlug } from '../../lib/posts';
+
+export const getStaticPaths = langPaths;
+const lang = Astro.params.lang as Lang;
+const ui = t(lang);
+const posts = await getPosts(lang);
+const recent = posts.slice(0, 4);
+const heroShots = [
+  ['images/mytodo/home.jpg', 'images/praise/compare.jpg', 'images/routiny/home.jpg'],
+][0];
+---
+<Base lang={lang} path="" nav="home">
+  <section class="hero">
+    <div>
+      <span class="eyebrow">{ui.home.eyebrow}</span>
+      <h1>{ui.home.title}</h1>
+      <p>{ui.home.sub}</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href={href(lang, 'projects/')}>{ui.home.ctaProjects}</a>
+        <a class="btn" href={href(lang, 'posts/')}>{ui.home.ctaPosts}</a>
+      </div>
+      <div class="stats">
+        {ui.home.stats.map((s) => <div><strong>{s.v}</strong><span>{s.l}</span></div>)}
+        <div><strong>{posts.length}</strong><span>{ui.home.postsStat}</span></div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      {heroShots.map((src) => <img src={asset(src)} alt="" width="500" height="1086" />)}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-projects">
+    <div class="section-head">
+      <h2 id="h-projects">{ui.home.projects}</h2>
+      <a href={href(lang, 'projects/')}>{ui.home.seeAll} →</a>
+    </div>
+    <div class="grid-sm">
+      {PROJECTS.map((p) => <ProjectCard project={p} lang={lang} compact />)}
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="h-recent">
+    <div class="section-head">
+      <h2 id="h-recent">{ui.home.recent}</h2>
+      <a href={href(lang, 'posts/')}>{ui.home.seeAll} →</a>
+    </div>
+    <ul class="post-list">
+      {recent.map((p) => (
+        <li>
+          <a href={href(lang, `posts/${postSlug(p)}/`)}>
+            <span class="chip">{ui.categories[p.data.category]}</span>
+            <span class="pl-title">{p.data.title}</span>
+            <span class="pl-meta">{projectName(p.data.project, lang)} · {formatDate(lang, p.data.date)}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Base>
